@@ -1,0 +1,6 @@
+# IDEA related files
+.idea/*
+*.iml
+
+# out files
+out/*
