@@ -1,6 +1,8 @@
 package com.kpi.coursework;
 
 import java.io.File;
+import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 
 public class ParallelComputingRunner {
@@ -17,6 +19,8 @@ public class ParallelComputingRunner {
             return;
         }
 
+        InvertedIndexBuilder builder = new InvertedIndexBuilder();
+        Map<String, List<String>> invertedIndex = builder.buildInvertedIndex(fileParts, threadNum);
     }
 
     private static int getThreadsNumFromUser() {
