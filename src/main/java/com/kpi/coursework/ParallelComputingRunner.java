@@ -5,26 +5,17 @@ import java.util.Scanner;
 
 public class ParallelComputingRunner {
     public static final String SOURCE_FOLDER = "text_files";
+    public static final int EXIT_CODE = -1;
 
     public static void main(String[] args) {
         File sourceFolder = new File(SOURCE_FOLDER);
 
-        if (!sourceFolder.isDirectory() || sourceFolder.listFiles().length == 0) {
-            System.out.println("There are no files for building inverted index!");
-            return;
-        }
-
-        File[] subFolders = sourceFolder.listFiles();
-        File[][] parts = new File[subFolders.length][];
-        for (int i = 0; i < subFolders.length; i++) {
-            parts[i] = subFolders[i].listFiles();
-        }
-
+        File[][] fileParts = prepareFileParts(sourceFolder);
         int threadNum = getThreadsNumFromUser();
-        if (threadNum == -1) {
+
+        if (threadNum == EXIT_CODE || fileParts == null) {
             return;
         }
-
 
     }
 
@@ -49,5 +40,20 @@ public class ParallelComputingRunner {
         }
 
         return threadsNum;
+    }
+
+    private static File[][] prepareFileParts(File sourceFolder) {
+        if (!sourceFolder.isDirectory() || sourceFolder.listFiles().length == 0) {
+            System.out.println("There are no files for building inverted index!");
+            return null;
+        }
+
+        File[] subFolders = sourceFolder.listFiles();
+        File[][] parts = new File[subFolders.length][];
+        for (int i = 0; i < subFolders.length; i++) {
+            parts[i] = subFolders[i].listFiles();
+        }
+
+        return parts;
     }
 }
