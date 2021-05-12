@@ -1,16 +1,11 @@
 package com.kpi.coursework;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.PriorityQueue;
-import java.util.Queue;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class InvertedIndexBuilder {
-    public Map<String, Queue<String>> buildInvertedIndex(File[][] fileArrays, int threadsNum) {
+    public Map<String, List<String>> buildInvertedIndex(File[][] fileArrays, int threadsNum) {
         if (threadsNum == 1) {
             return sequentialBuild(fileArrays);
         } else {
@@ -18,25 +13,25 @@ public class InvertedIndexBuilder {
         }
     }
 
-    private Map<String, Queue<String>> sequentialBuild(File[][] fileArrays) {
+    private Map<String, List<String>> sequentialBuild(File[][] fileArrays) {
         int[][] bounds = new int[fileArrays.length][2];
         for (int i = 0; i < bounds.length; i++) {
             bounds[i][0] = 0;
             bounds[i][1] = fileArrays[i].length;
         }
 
-        Map<String, Queue<String>> invertedIndex = new ConcurrentHashMap<>();
+        Map<String, List<String>> invertedIndex = new ConcurrentHashMap<>();
         InvertedIndexHelper.buildIndexPart(fileArrays, bounds, invertedIndex);
 
         return invertedIndex;
     }
 
-    private Map<String, Queue<String>> parallelBuild(File[][] fileArrays, int threadsNum) {
+    private Map<String, List<String>> parallelBuild(File[][] fileArrays, int threadsNum) {
         BuildThread[] buildThreads = new BuildThread[threadsNum];
 
-        List<Map<String, Queue<String>>> listOfIndexParts = new ArrayList<>(threadsNum);
+        List<Map<String, List<String>>> listOfIndexParts = new ArrayList<>(threadsNum);
         for (int i = 0; i < threadsNum; i++) {
-            Map<String, Queue<String>> indexPart = new HashMap<>();
+            Map<String, List<String>> indexPart = new HashMap<>();
             listOfIndexParts.add(indexPart);
 
             int[][] bounds = new int[fileArrays.length][2];
@@ -60,10 +55,10 @@ public class InvertedIndexBuilder {
         return mergeIndexParts(listOfIndexParts);
     }
 
-    private Map<String, Queue<String>> mergeIndexParts(List<Map<String, Queue<String>>> indexParts) {
-        Map<String, Queue<String>> invertedIndex = new ConcurrentHashMap<>();
+    private Map<String, List<String>> mergeIndexParts(List<Map<String, List<String>>> indexParts) {
+        Map<String, List<String>> invertedIndex = new ConcurrentHashMap<>();
 
-        for (Map<String, Queue<String>> indexPart : indexParts) {
+        for (Map<String, List<String>> indexPart : indexParts) {
             String[] wordsArray = new String[indexPart.keySet().size()];
             indexPart.keySet().toArray(wordsArray);
 
@@ -71,11 +66,14 @@ public class InvertedIndexBuilder {
                 if (invertedIndex.containsKey(word)) {
                     invertedIndex.get(word).addAll(indexPart.get(word));
                 } else {
-                    PriorityQueue<String> wordPositions = new PriorityQueue<>();
-                    wordPositions.addAll(indexPart.get(word));
+                    List<String> wordPositions = new LinkedList<>(indexPart.get(word));
                     invertedIndex.put(word, wordPositions);
                 }
             }
+        }
+
+        for (List<String> positionList : invertedIndex.values()) {
+            positionList.sort(String::compareTo);
         }
 
         return invertedIndex;

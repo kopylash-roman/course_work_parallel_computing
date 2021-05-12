@@ -1,8 +1,8 @@
 package com.kpi.coursework;
 
 import java.io.File;
+import java.util.List;
 import java.util.Map;
-import java.util.Queue;
 import java.util.Scanner;
 
 public class IndexBuilderRunner {
@@ -23,7 +23,7 @@ public class IndexBuilderRunner {
 
         long startTime = System.currentTimeMillis();
 
-        Map<String, Queue<String>> invertedIndex = BUILDER.buildInvertedIndex(fileArrays, threadsNum);
+        Map<String, List<String>> invertedIndex = BUILDER.buildInvertedIndex(fileArrays, threadsNum);
 
         long buildingTime = System.currentTimeMillis() - startTime;
 

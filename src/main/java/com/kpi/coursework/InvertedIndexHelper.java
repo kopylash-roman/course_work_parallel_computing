@@ -5,19 +5,13 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
-import java.util.Map;
-import java.util.PriorityQueue;
-import java.util.Queue;
-import java.util.Scanner;
+import java.util.*;
 
 public class InvertedIndexHelper {
     private static final int LEFT_BOUND = 0;
     private static final int RIGHT_BOUND = 1;
 
-    public static void buildIndexPart(File[][] fileArrays, int[][] bounds, Map<String, Queue<String>> indexPartHolder) {
+    public static void buildIndexPart(File[][] fileArrays, int[][] bounds, Map<String, List<String>> indexPartHolder) {
         Scanner in;
 
         try {
@@ -44,7 +38,7 @@ public class InvertedIndexHelper {
                         if (indexPartHolder.containsKey(nextWord)) {
                             indexPartHolder.get(nextWord).add(arrNum + ":" + fileName);
                         } else {
-                            Queue<String> wordPositions = new PriorityQueue<>();
+                            List<String> wordPositions = new LinkedList<>();
                             wordPositions.add(arrNum + ":" + fileName);
                             indexPartHolder.put(nextWord, wordPositions);
                         }
@@ -58,7 +52,7 @@ public class InvertedIndexHelper {
         }
     }
 
-    public static void writeInvertedIndexToFile(Map<String, Queue<String>> invertedIndex, int threadsNum) {
+    public static void writeInvertedIndexToFile(Map<String, List<String>> invertedIndex, int threadsNum) {
         Calendar calendar = new GregorianCalendar();
         StringBuilder invertedIndexName = new StringBuilder("InvertedIndex_");
         invertedIndexName.append(threadsNum)
@@ -71,14 +65,14 @@ public class InvertedIndexHelper {
 
         try {
             BufferedWriter writer = new BufferedWriter(new FileWriter(invertedIndexName + ".txt"));
-            Queue<String> indexWords = new PriorityQueue<>(invertedIndex.keySet());
+            final List<String> indexWords = new ArrayList<>(invertedIndex.keySet());
+            indexWords.sort(String::compareTo);
 
-            while (indexWords.size() != 0) {
-                String word = indexWords.poll();
+            for (String word : indexWords) {
                 StringBuilder indexLine = new StringBuilder(word);
                 indexLine.append(": ");
-                while (invertedIndex.get(word).size() != 0) {
-                    indexLine.append(invertedIndex.get(word).poll()).append("  ");
+                for (String position : invertedIndex.get(word)) {
+                    indexLine.append(position).append("  ");
                 }
                 writer.write(indexLine + "\n");
             }

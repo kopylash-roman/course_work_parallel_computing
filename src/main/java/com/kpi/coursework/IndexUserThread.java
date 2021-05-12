@@ -1,16 +1,16 @@
 package com.kpi.coursework;
 
+import java.util.List;
 import java.util.Map;
-import java.util.Queue;
 import java.util.Random;
 
 public class IndexUserThread extends Thread {
     private static final Random RANDOM = new Random();
-    private final Map<String, Queue<String>> invertedIndex;
+    private final Map<String, List<String>> invertedIndex;
     private final String[] dictionary;
     private final int threadId;
 
-    public IndexUserThread(Map<String, Queue<String>> invertedIndex, int threadId) {
+    public IndexUserThread(Map<String, List<String>> invertedIndex, int threadId) {
         this.invertedIndex = invertedIndex;
         this.threadId = threadId;
 
@@ -24,9 +24,11 @@ public class IndexUserThread extends Thread {
 
         for (int i = 0; i < 10; i++) {
             String randomWord = dictionary[RANDOM.nextInt(dictSize)];
-            String firstPosition = invertedIndex.get(randomWord).peek();
+            List<String> wordPositions = invertedIndex.get(randomWord);
 
-            System.out.println("User " + threadId + ": first position for word [" + randomWord + "] is " + firstPosition);
+            String randomPosition = wordPositions.get(RANDOM.nextInt(wordPositions.size()));
+
+            System.out.println("User " + threadId + ": random position for word [" + randomWord + "] is " + randomPosition);
         }
     }
 }

@@ -1,16 +1,16 @@
 package com.kpi.coursework;
 
 import java.io.File;
+import java.util.List;
 import java.util.Map;
-import java.util.Queue;
 
 public class BuildThread extends Thread {
     private final File[][] fileArrays;
     private final int[][] bounds;
     private final int threadId;
-    private final Map<String, Queue<String>> indexPartHolder;
+    private final Map<String, List<String>> indexPartHolder;
 
-    public BuildThread(File[][] fileArrays, int[][] bounds, Map<String, Queue<String>> indexPartHolder, int threadId) {
+    public BuildThread(File[][] fileArrays, int[][] bounds, Map<String, List<String>> indexPartHolder, int threadId) {
         this.fileArrays = fileArrays;
         this.bounds = bounds;
         this.indexPartHolder = indexPartHolder;
