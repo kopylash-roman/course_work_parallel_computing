@@ -27,6 +27,8 @@ public class ParallelComputingRunner {
         long buildingTime = System.currentTimeMillis() - startTime;
 
         System.out.println("It took " + buildingTime + " ms to build the index with " + threadNum + " thread(s)");
+
+        InvertedIndexHelper.writeInvertedIndexToFile(invertedIndex, threadNum);
     }
 
     private static int getThreadsNumFromUser() {

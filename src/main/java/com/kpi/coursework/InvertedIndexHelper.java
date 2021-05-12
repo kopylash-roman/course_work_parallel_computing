@@ -47,4 +47,36 @@ public class InvertedIndexHelper {
             System.out.println("Error while opening file!");
         }
     }
+
+    public static void writeInvertedIndexToFile(Map<String, Queue<String>> invertedIndex, int threadsNum) {
+        Calendar calendar = new GregorianCalendar();
+        StringBuilder invertedIndexName = new StringBuilder("InvertedIndex_");
+        invertedIndexName.append(threadsNum)
+                .append("thr_")
+                .append(calendar.get(Calendar.DAY_OF_MONTH))
+                .append(calendar.get(Calendar.MONTH) + 1)
+                .append("-")
+                .append(calendar.get(Calendar.HOUR_OF_DAY))
+                .append(calendar.get(Calendar.MINUTE));
+
+        try {
+            BufferedWriter writer = new BufferedWriter(new FileWriter(invertedIndexName + ".txt"));
+            Queue<String> indexWords = new PriorityQueue<>(invertedIndex.keySet());
+
+            while (indexWords.size() != 0) {
+                String word = indexWords.poll();
+                StringBuilder indexLine = new StringBuilder(word);
+                indexLine.append(": ");
+                while (invertedIndex.get(word).size() != 0) {
+                    indexLine.append(invertedIndex.get(word).poll()).append("  ");
+                }
+                writer.write(indexLine + "\n");
+            }
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+        System.out.println("The inverted index has been successfully written to the file!");
+    }
+
+
 }
