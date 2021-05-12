@@ -5,7 +5,7 @@ import java.io.FileNotFoundException;
 import java.util.*;
 
 public class InvertedIndexBuilder {
-    public Map<String, List<String>> buildInvertedIndex(File[][] parts, int threadsNum) {
+    public Map<String, Queue<String>> buildInvertedIndex(File[][] parts, int threadsNum) {
         if (threadsNum == 1) {
             return sequentialBuild(parts);
         } else {
@@ -13,16 +13,16 @@ public class InvertedIndexBuilder {
         }
     }
 
-    private Map<String, List<String>> sequentialBuild(File[][] parts) {
+    private Map<String, Queue<String>> sequentialBuild(File[][] parts) {
         return buildIndexPart(parts);
     }
 
-    private Map<String, List<String>> parallelBuild(File[][] parts, int threadsNum) {
+    private Map<String, Queue<String>> parallelBuild(File[][] parts, int threadsNum) {
         return null;
     }
 
-    private Map<String, List<String>> buildIndexPart(File[][] filePart) {
-        Map<String, List<String>> indexPart = new HashMap<>();
+    private Map<String, Queue<String>> buildIndexPart(File[][] filePart) {
+        Map<String, Queue<String>> indexPart = new HashMap<>();
         Scanner in;
 
         try {
@@ -49,7 +49,7 @@ public class InvertedIndexBuilder {
                         if (indexPart.containsKey(nextWord)) {
                             indexPart.get(nextWord).add(partNum + ":" + fileName);
                         } else {
-                            List<String> wordPositions = new LinkedList<>();
+                            Queue<String> wordPositions = new PriorityQueue<>();
                             wordPositions.add(partNum + ":" + fileName);
                             indexPart.put(nextWord, wordPositions);
                         }
