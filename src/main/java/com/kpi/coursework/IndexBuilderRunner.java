@@ -9,6 +9,7 @@ public class IndexBuilderRunner {
     private static final String SOURCE_FOLDER = "text_files";
     private static final int EXIT_CODE = -1;
     private static final InvertedIndexBuilder BUILDER = new InvertedIndexBuilder();
+    private static final int INDEX_USERS_NUM = 10;
 
     public static void main(String[] args) {
         File sourceFolder = new File(SOURCE_FOLDER);
@@ -29,6 +30,23 @@ public class IndexBuilderRunner {
         System.out.println("It took " + buildingTime + " ms to build the index with " + threadsNum + " thread(s)");
 
         InvertedIndexHelper.writeInvertedIndexToFile(invertedIndex, threadsNum);
+
+        System.out.println("\nStart using the index...");
+        IndexUserThread[] indexUsers = new IndexUserThread[INDEX_USERS_NUM];
+        for (int i = 0; i < INDEX_USERS_NUM; i++) {
+            indexUsers[i] = new IndexUserThread(invertedIndex, i);
+            indexUsers[i].start();
+        }
+
+        try {
+            for (IndexUserThread indexUser : indexUsers) {
+                indexUser.join();
+            }
+        } catch (InterruptedException ex) {
+            ex.printStackTrace();
+        }
+
+        System.out.println("Using of inverted index is finished!");
     }
 
     private static int getThreadsNumFromUser() {
