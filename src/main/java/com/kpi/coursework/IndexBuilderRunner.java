@@ -5,30 +5,30 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Scanner;
 
-public class ParallelComputingRunner {
-    public static final String SOURCE_FOLDER = "text_files";
-    public static final int EXIT_CODE = -1;
+public class IndexBuilderRunner {
+    private static final String SOURCE_FOLDER = "text_files";
+    private static final int EXIT_CODE = -1;
+    private static final InvertedIndexBuilder BUILDER = new InvertedIndexBuilder();
 
     public static void main(String[] args) {
         File sourceFolder = new File(SOURCE_FOLDER);
 
-        File[][] fileParts = prepareFileParts(sourceFolder);
-        int threadNum = getThreadsNumFromUser();
+        File[][] fileArrays = prepareFileArrays(sourceFolder);
+        int threadsNum = getThreadsNumFromUser();
 
-        if (threadNum == EXIT_CODE || fileParts == null) {
+        if (threadsNum == EXIT_CODE || fileArrays == null) {
             return;
         }
 
         long startTime = System.currentTimeMillis();
 
-        InvertedIndexBuilder builder = new InvertedIndexBuilder();
-        Map<String, Queue<String>> invertedIndex = builder.buildInvertedIndex(fileParts, threadNum);
+        Map<String, Queue<String>> invertedIndex = BUILDER.buildInvertedIndex(fileArrays, threadsNum);
 
         long buildingTime = System.currentTimeMillis() - startTime;
 
-        System.out.println("It took " + buildingTime + " ms to build the index with " + threadNum + " thread(s)");
+        System.out.println("It took " + buildingTime + " ms to build the index with " + threadsNum + " thread(s)");
 
-        InvertedIndexHelper.writeInvertedIndexToFile(invertedIndex, threadNum);
+        InvertedIndexHelper.writeInvertedIndexToFile(invertedIndex, threadsNum);
     }
 
     private static int getThreadsNumFromUser() {
@@ -54,18 +54,18 @@ public class ParallelComputingRunner {
         return threadsNum;
     }
 
-    private static File[][] prepareFileParts(File sourceFolder) {
+    private static File[][] prepareFileArrays(File sourceFolder) {
         if (!sourceFolder.isDirectory() || sourceFolder.listFiles().length == 0) {
             System.out.println("There are no files for building inverted index!");
             return null;
         }
 
         File[] subFolders = sourceFolder.listFiles();
-        File[][] parts = new File[subFolders.length][];
+        File[][] fileArrays = new File[subFolders.length][];
         for (int i = 0; i < subFolders.length; i++) {
-            parts[i] = subFolders[i].listFiles();
+            fileArrays[i] = subFolders[i].listFiles();
         }
 
-        return parts;
+        return fileArrays;
     }
 }

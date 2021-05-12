@@ -1,20 +1,30 @@
 package com.kpi.coursework;
 
-import java.io.*;
-import java.util.*;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+import java.util.Map;
+import java.util.PriorityQueue;
+import java.util.Queue;
+import java.util.Scanner;
 
 public class InvertedIndexHelper {
     private static final int LEFT_BOUND = 0;
     private static final int RIGHT_BOUND = 1;
 
-    public static void buildIndexPart(File[][] filePart, int[][] bounds, Map<String, Queue<String>> indexPartHolder) {
+    public static void buildIndexPart(File[][] fileArrays, int[][] bounds, Map<String, Queue<String>> indexPartHolder) {
         Scanner in;
 
         try {
-            for (int partNum = 0; partNum < filePart.length; partNum++) {
-                for (int fileNum = bounds[partNum][LEFT_BOUND]; fileNum < bounds[partNum][RIGHT_BOUND]; fileNum++) {
-                    String fileName = filePart[partNum][fileNum].getName().replaceAll(".txt", "");
-                    in = new Scanner(filePart[partNum][fileNum]);
+            for (int arrNum = 0; arrNum < fileArrays.length; arrNum++) {
+                for (int fileNum = bounds[arrNum][LEFT_BOUND]; fileNum < bounds[arrNum][RIGHT_BOUND]; fileNum++) {
+                    String fileName = fileArrays[arrNum][fileNum].getName().replaceAll(".txt", "");
+                    in = new Scanner(fileArrays[arrNum][fileNum]);
 
                     String preparedLine = in.nextLine()
                             .replaceAll("[^A-Za-z\\s]", "")
@@ -32,10 +42,10 @@ public class InvertedIndexHelper {
                         }
 
                         if (indexPartHolder.containsKey(nextWord)) {
-                            indexPartHolder.get(nextWord).add(partNum + ":" + fileName);
+                            indexPartHolder.get(nextWord).add(arrNum + ":" + fileName);
                         } else {
                             Queue<String> wordPositions = new PriorityQueue<>();
-                            wordPositions.add(partNum + ":" + fileName);
+                            wordPositions.add(arrNum + ":" + fileName);
                             indexPartHolder.put(nextWord, wordPositions);
                         }
 

@@ -1,51 +1,56 @@
 package com.kpi.coursework;
 
-import java.io.File;import java.io.FileNotFoundException;
-import java.util.*;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.PriorityQueue;
+import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class InvertedIndexBuilder {
-    public Map<String, Queue<String>> buildInvertedIndex(File[][] parts, int threadsNum) {
+    public Map<String, Queue<String>> buildInvertedIndex(File[][] fileArrays, int threadsNum) {
         if (threadsNum == 1) {
-            return sequentialBuild(parts);
+            return sequentialBuild(fileArrays);
         } else {
-            return parallelBuild(parts, threadsNum);
+            return parallelBuild(fileArrays, threadsNum);
         }
     }
 
-    private Map<String, Queue<String>> sequentialBuild(File[][] parts) {
-        int[][] bounds = new int[parts.length][2];
+    private Map<String, Queue<String>> sequentialBuild(File[][] fileArrays) {
+        int[][] bounds = new int[fileArrays.length][2];
         for (int i = 0; i < bounds.length; i++) {
             bounds[i][0] = 0;
-            bounds[i][1] = parts[i].length;
+            bounds[i][1] = fileArrays[i].length;
         }
 
         Map<String, Queue<String>> invertedIndex = new ConcurrentHashMap<>();
-        InvertedIndexHelper.buildIndexPart(parts, bounds, invertedIndex);
+        InvertedIndexHelper.buildIndexPart(fileArrays, bounds, invertedIndex);
 
         return invertedIndex;
     }
 
-    private Map<String, Queue<String>> parallelBuild(File[][] parts, int threadsNum) {
-        BuildTask[] buildTasks = new BuildTask[threadsNum];
+    private Map<String, Queue<String>> parallelBuild(File[][] fileArrays, int threadsNum) {
+        BuildThread[] buildThreads = new BuildThread[threadsNum];
 
         List<Map<String, Queue<String>>> listOfIndexParts = new ArrayList<>(threadsNum);
         for (int i = 0; i < threadsNum; i++) {
             Map<String, Queue<String>> indexPart = new HashMap<>();
             listOfIndexParts.add(indexPart);
 
-            int[][] bounds = new int[parts.length][2];
+            int[][] bounds = new int[fileArrays.length][2];
             for(int j = 0; j < bounds.length; j++) {
-                bounds[j][0] = parts[j].length / threadsNum * i;
-                bounds[j][1] = i == threadsNum - 1 ? parts[j].length : parts[j].length / threadsNum * (i + 1);
+                bounds[j][0] = fileArrays[j].length / threadsNum * i;
+                bounds[j][1] = i == threadsNum - 1 ? fileArrays[j].length : fileArrays[j].length / threadsNum * (i + 1);
             }
 
-            buildTasks[i] = new BuildTask(parts, bounds, indexPart, i);
-            buildTasks[i].start();
+            buildThreads[i] = new BuildThread(fileArrays, bounds, indexPart, i);
+            buildThreads[i].start();
         }
 
         try {
-            for (BuildTask task : buildTasks) {
+            for (BuildThread task : buildThreads) {
                 task.join();
             }
         } catch (InterruptedException ex) {
