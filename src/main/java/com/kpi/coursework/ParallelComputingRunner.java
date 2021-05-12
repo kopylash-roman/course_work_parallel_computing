@@ -19,8 +19,14 @@ public class ParallelComputingRunner {
             return;
         }
 
+        long startTime = System.currentTimeMillis();
+
         InvertedIndexBuilder builder = new InvertedIndexBuilder();
         Map<String, Queue<String>> invertedIndex = builder.buildInvertedIndex(fileParts, threadNum);
+
+        long buildingTime = System.currentTimeMillis() - startTime;
+
+        System.out.println("It took " + buildingTime + " ms to build the index with " + threadNum + " thread(s)");
     }
 
     private static int getThreadsNumFromUser() {
