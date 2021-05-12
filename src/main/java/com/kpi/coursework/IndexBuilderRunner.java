@@ -21,12 +21,13 @@ public class IndexBuilderRunner {
             return;
         }
 
+        System.out.println("Start building the index...");
         long startTime = System.currentTimeMillis();
 
         Map<String, List<String>> invertedIndex = BUILDER.buildInvertedIndex(fileArrays, threadsNum);
 
         long buildingTime = System.currentTimeMillis() - startTime;
-
+        System.out.println("Index was successfully build!");
         System.out.println("It took " + buildingTime + " ms to build the index with " + threadsNum + " thread(s)");
 
         InvertedIndexHelper.writeInvertedIndexToFile(invertedIndex, threadsNum);
