@@ -21,6 +21,7 @@ public class InvertedIndexHelper {
                     in = new Scanner(fileArrays[arrNum][fileNum]);
 
                     String preparedLine = in.nextLine()
+                            .replaceAll("<.*?>", "")
                             .replaceAll("[^A-Za-z\\s]", "")
                             .replaceAll(" +", " ")
                             .trim()
